@@ -13,11 +13,9 @@ services:
       DATABASE_URL: postgresql://user:password@db:5432/take5db # DB connection string for app
     depends_on:
       - db # Ensure database starts before the app
-    # NEW COMMAND: Use wait-for-it.sh to delay app startup until DB is ready
+    # THIS IS THE FINAL CORRECTION: REMOVED the '--'
     command: ["/app/wait-for-it.sh", "db", "5432", "python", "app.py"]
-    volumes: # Mount the wait-for-it.sh script into the container
-      - ./wait-for-it.sh:/app/wait-for-it.sh
-
+    
   db:
     image: postgres:13
     container_name: take5_postgres_db

@@ -26,6 +26,10 @@ RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O ng
 # Copy the current directory contents into the container at /app
 COPY . /app
 
+# Fix line endings and make the wait-for-it script executable
+RUN sed -i 's/\r$//' /app/wait-for-it.sh && \
+    chmod +x /app/wait-for-it.sh
+
 # Install any needed Python packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
