@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  chatbot_app:
+    build: .
+    container_name: take5_chatbot_app
+    restart: always
+    ports:
+      - "5000:5000" # Expose the Flask port
+    env_file:
+      - .env # Load environment variables from .env
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/take5db # DB connection string for app
+    depends_on:
+      - db # Ensure database starts before the app
+    # NEW COMMAND: Use wait-for-it.sh to delay app startup until DB is ready
+    command: ["/app/wait-for-it.sh", "db", "5432", "python", "app.py"]
+    volumes: # Mount the wait-for-it.sh script into the container
+      - ./wait-for-it.sh:/app/wait-for-it.sh
+
+  db:
+    image: postgres:13
+    container_name: take5_postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: take5db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persist database data
+    ports:
+      - "5432:5432" # Expose PostgreSQL port (optional, good for debugging)
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: take5_ngrok
+    restart: always
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTH_TOKEN} # Ngrok auth token from .env
+    command: ["http", "chatbot_app:5000"] # Tunnel to your chatbot_app service on port 5000
+    depends_on:
+      - chatbot_app # Ngrok needs the app to be running to tunnel to it
+    ports:
+      - "4040:4040" # Ngrok UI for inspection (optional, but useful)
+
+volumes:
+  postgres_data: # Define the named volume for PostgreSQL data persistence
