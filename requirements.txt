@@ -2,3 +2,6 @@ Flask
 twilio
 python-dotenv
 psycopg2-binary
+Flask-SQLAlchemy
+Flask-Admin
+WTForms==2.3.3
